@@ -19,6 +19,7 @@ import { ArrowTopRightIcon } from '@radix-ui/react-icons';
 import { InvitationsTable } from './Invitations';
 import { useTeams } from '../hooks/useTeam';
 import { toast } from '@/hooks/useToast';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 type Team = {
   image_url: string | null;
@@ -97,9 +98,8 @@ export const Profile = ({
       const existingTZ = readUserField('timezone');
       if (existingTZ && String(existingTZ).length > 0) return; // already set, do nothing
 
-      const detectedTZ = (typeof Intl !== 'undefined' && Intl.DateTimeFormat)
-        ? Intl.DateTimeFormat().resolvedOptions().timeZone
-        : 'UTC';
+      const detectedTZ =
+        typeof Intl !== 'undefined' && Intl.DateTimeFormat ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC';
 
       // Persist the timezone so it becomes the user's saved preference.
       (async () => {
@@ -186,8 +186,7 @@ export const Profile = ({
   return (
     <div>
       <div>
-        <h3 className='text-lg font-medium'>Profile</h3>
-        <p className='text-sm text-muted-foreground'>Apply basic changes to your profile</p>
+        <h3 className='text-2xl font-bold'>Profile</h3>
       </div>
       <Separator className='my-4' />
       {isLoading ? (
@@ -203,12 +202,24 @@ export const Profile = ({
               display: 'First Name',
               validation: (value: string) => value.length > 0,
               value: readUserField('first_name') ?? '',
+              colSpan: 1,
+              colSpanMd: 1,
+              colSpanXl: 1,
+              colStartXl: 1,
+              rowStartMd: 1,
+              rowStartXl: 1,
             },
             last_name: {
               type: 'text',
               display: 'Last Name',
               validation: (value: string) => value.length > 0,
               value: readUserField('last_name') ?? '',
+              colSpan: 1,
+              colSpanMd: 1,
+              colSpanXl: 1,
+              colStartXl: 1,
+              rowStartMd: 2,
+              rowStartXl: 2,
             },
             display_name: {
               type: 'text',
@@ -220,6 +231,12 @@ export const Profile = ({
                 (readUserField('first_name') || readUserField('last_name')
                   ? `${readUserField('first_name') ?? ''} ${readUserField('last_name') ?? ''}`.trim()
                   : ''),
+              colSpan: 1,
+              colSpanMd: 1,
+              colSpanXl: 1,
+              colStartXl: 1,
+              rowStartMd: 3,
+              rowStartXl: 3,
             },
             timezone: {
               type: 'text',
@@ -227,13 +244,30 @@ export const Profile = ({
               validation: (value: string) => value.length > 0,
               // Use server value if present; otherwise fall back to browser timezone or UTC.
               value:
-                (readUserField('timezone') && String(readUserField('timezone')).length > 0
+                readUserField('timezone') && String(readUserField('timezone')).length > 0
                   ? String(readUserField('timezone'))
-                  : (typeof Intl !== 'undefined' && Intl.DateTimeFormat)
-                  ? Intl.DateTimeFormat().resolvedOptions().timeZone
-                  : 'UTC'),
+                  : typeof Intl !== 'undefined' && Intl.DateTimeFormat
+                    ? Intl.DateTimeFormat().resolvedOptions().timeZone
+                    : 'UTC',
+              colSpan: 1,
+              colSpanMd: 1,
+              colSpanXl: 1,
+              colStartXl: 2,
+              rowStartMd: 1,
+              rowStartXl: 1,
             },
           }}
+          extraComponents={[
+            {
+              key: 'theme-toggle',
+              element: <ThemeToggle initialTheme={readUserField('theme')} />,
+              colSpan: 1,
+              colStartMd: 2,
+              colStartXl: 3,
+              rowStartMd: 2,
+              rowStartXl: 1,
+            },
+          ]}
           toUpdate={data.user}
           submitButtonText='Update'
           excludeFields={[
@@ -248,7 +282,7 @@ export const Profile = ({
           ]}
           readOnlyFields={['input_tokens', 'output_tokens']}
           additionalButtons={[
-            <div key='teams-table' className='col-span-4'>
+            <div key='teams-table' className='col-span-full'>
               <DataTable data={userTeams || []} columns={user_teams_columns} meta={{ title: 'Teams' }} />
             </div>,
           ]}
